@@ -108,7 +108,10 @@ while(cap.isOpened()):
                 
                 #Apply black mask and elongated closing to cropped image
                 black_masked = cv2.inRange(hsv_robot,np.array([80,50,40],dtype = "uint8"),np.array([150,255,60],dtype = "uint8"))
+                cv2.imshow('bk',black_masked);
+                #cv2.waitKey(0);
                 black_masked = cv2.morphologyEx(black_masked, cv2.MORPH_CLOSE,kernel_black,iterations = 1)
+
                 #Find black contours
                 image, b_contours, hierarchy = cv2.findContours(black_masked, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 #Limit number of black contours near red contours to reduce noise
@@ -174,7 +177,7 @@ while(cap.isOpened()):
     #cv2.imshow('closing',closing)        
 
     #Set waitKey(1) for continuous play
-    key = cv2.waitKey(1)
+    key = cv2.waitKey(0)
     #cv2.destroyAllWindows()
     #Press p for previous frame, q to quit, any other key to continue
     if key & 0xFF== ord('p'):
