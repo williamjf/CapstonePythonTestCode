@@ -7,10 +7,11 @@ Created on Tue Mar 27 18:31:04 2018
 
 import cv2
 import time
+import csv
 import numpy as np
 
 def showPixelValue(event,x,y,flags,param):
-    global frame, combinedResult, placeholder
+    global frame, combinedResult, placeholder, current_frame, csv_data
     
     if event == cv2.EVENT_MOUSEMOVE:
         # get the value of pixel from the location of mouse in (x,y)
@@ -33,20 +34,22 @@ def showPixelValue(event,x,y,flags,param):
         
         # Combine the two results to show side by side in a single image
         cv2.imshow('hsv',placeholder)
-    elif event == cv2.EVENT_LBUTTONDOWN:
-        frame = cv2.circle(frame,(x,y),5,(0,255,0))
+    elif event == cv2.EVENT_MOUSEWHEEL:
+        csv_data.append([current_frame,x,y])
+        current_frame += 1
+        ret, frame = cap.read()
+        frame = cv2.circle(frame,(x,y),3,(255,0,255),thickness=4)
         cv2.imshow("N for next, P for Previous",frame)
         
 if __name__ is '__main__':
-    global frame
+    global frame, current_frame, csv_data
     start_frame = 1000
-    
+    csv_data = []
     cap = cv2.VideoCapture('red_roomba_test_vid.mp4') #Setup video read
-    cap.set(1, start_frame) #Set starting frame of video
+    cap.set(1, start_frame)
+    current_frame = cap.get(1) #Set starting frame of video
     ret,frame = cap.read()
     cv2.imshow("N for next, P for Previous",frame)
-    global current_frame
-    current_frame = cap.get(1)
     
     #cv2.waitKey(0)
     cv2.setMouseCallback("N for next, P for Previous",showPixelValue)
@@ -68,6 +71,9 @@ if __name__ is '__main__':
             continue
         elif key == ord('q'):
             break
-        
+    
+    with open('points.csv','w') as csvfile: 
+        writer = csv.writer(csvfile)
+        writer.writerows(csv_data)    
     cap.release()
     cv2.destroyAllWindows()
